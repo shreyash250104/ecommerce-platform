@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';  // ✅ KEY CHANGE 1: Added useSearchParams
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { User, Mail, Lock, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/common/Button/Button';
 import { useAuthStore } from '@/stores/authStore';
 
-export default function SignupPage() {
+// Inner component that uses useSearchParams
+function SignupForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();  // ✅ KEY CHANGE 2: Initialize searchParams
+  const searchParams = useSearchParams();
   const { signup } = useAuthStore();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -20,7 +21,6 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ✅ KEY CHANGE 3: Get redirect URL from query params
   const redirectTo = searchParams.get('redirect') || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +58,6 @@ export default function SignupPage() {
       const success = await signup(name, email, password);
       
       if (success) {
-        // ✅ KEY CHANGE 4: Redirect to intended page after successful signup
         router.push(redirectTo);
       } else {
         setError('Signup failed. Please try again.');
@@ -89,9 +88,7 @@ export default function SignupPage() {
         
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -99,16 +96,14 @@ export default function SignupPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                 placeholder="John Doe"
               />
             </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -116,16 +111,14 @@ export default function SignupPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                 placeholder="you@example.com"
               />
             </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password *</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -133,7 +126,7 @@ export default function SignupPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                 placeholder="••••••••"
               />
               <button
@@ -148,9 +141,7 @@ export default function SignupPage() {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Confirm Password *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -158,7 +149,7 @@ export default function SignupPage() {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full pl-10 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                className="w-full pl-10 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                 placeholder="••••••••"
               />
               <button
@@ -172,21 +163,10 @@ export default function SignupPage() {
           </div>
           
           <div className="flex items-start gap-2">
-            <input
-              type="checkbox"
-              id="terms"
-              required
-              className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
+            <input type="checkbox" id="terms" required className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded" />
             <label htmlFor="terms" className="text-sm text-gray-600">
-              I agree to the{' '}
-              <Link href="/terms" className="text-blue-600 hover:underline">
-                Terms of Service
-              </Link>
-              {' '}and{' '}
-              <Link href="/privacy" className="text-blue-600 hover:underline">
-                Privacy Policy
-              </Link>
+              I agree to the <Link href="/terms" className="text-blue-600 hover:underline">Terms of Service</Link> and{' '}
+              <Link href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
             </label>
           </div>
           
@@ -199,9 +179,7 @@ export default function SignupPage() {
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             Already have an account?{' '}
-            <Link href="/auth/login" className="text-blue-600 hover:underline font-medium">
-              Sign in
-            </Link>
+            <Link href="/auth/login" className="text-blue-600 hover:underline font-medium">Sign in</Link>
           </p>
         </div>
         
@@ -213,5 +191,21 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   );
 }

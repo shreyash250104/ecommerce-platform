@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, X } from 'lucide-react';
+import Link from 'next/link';
+import { Upload, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/common/Button/Button';
 
 export default function AddProductPage() {
@@ -38,9 +39,18 @@ export default function AddProductPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Add New Product</h1>
-        <p className="text-gray-500 mt-1">Create a new product listing</p>
+      {/* Header with Back Button */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => router.back()}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Add New Product</h1>
+          <p className="text-gray-500 mt-1">Create a new product listing</p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6">
@@ -111,6 +121,7 @@ export default function AddProductPage() {
                   <option>Electronics</option>
                   <option>Gaming Gear</option>
                   <option>Accessories</option>
+                  <option>Smart Home</option>
                   <option>Audio</option>
                 </select>
               </div>
@@ -158,7 +169,7 @@ export default function AddProductPage() {
 
             <div>
               <label className="block text-sm font-medium mb-1">Product Images</label>
-              <div className="border-2 border-dashed rounded-lg p-8 text-center">
+              <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-blue-500 transition-colors cursor-pointer">
                 <Upload className="w-10 h-10 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm text-gray-500">Click or drag images here to upload</p>
                 <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>

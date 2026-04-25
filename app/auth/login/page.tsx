@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/common/Button/Button';
 import { useAuthStore } from '@/stores/authStore';
 
-export default function LoginPage() {
+// Inner component that uses useSearchParams
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuthStore();
@@ -17,7 +18,6 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Get the redirect URL from query params (default to /admin/dashboard for admin, or / for customer)
   const redirectTo = searchParams.get('redirect') || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,7 +35,6 @@ export default function LoginPage() {
       const success = await login(email, password);
       
       if (success) {
-        // Redirect to the original intended page
         router.push(redirectTo);
       } else {
         setError('Invalid email or password');
@@ -50,7 +49,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 py-12 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
             <LogIn className="w-8 h-8 text-blue-600" />
@@ -59,16 +57,13 @@ export default function LoginPage() {
           <p className="text-gray-600 mt-2">Sign in to your account</p>
         </div>
         
-        {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg mb-4 text-sm">
             {error}
           </div>
         )}
         
-        {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Email Address
@@ -86,7 +81,6 @@ export default function LoginPage() {
             </div>
           </div>
           
-          {/* Password */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Password
@@ -111,21 +105,18 @@ export default function LoginPage() {
             </div>
           </div>
           
-          {/* Forgot Password */}
           <div className="text-right">
             <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:underline">
               Forgot password?
             </Link>
           </div>
           
-          {/* Submit Button */}
           <Button type="submit" fullWidth size="lg" isLoading={loading}>
             <LogIn className="w-4 h-4 mr-2" />
             Sign In
           </Button>
         </form>
         
-        {/* Signup Link */}
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             Don't have an account?{' '}
@@ -135,7 +126,6 @@ export default function LoginPage() {
           </p>
         </div>
         
-        {/* Demo Info */}
         <div className="mt-6 p-4 bg-blue-50 rounded-lg">
           <p className="text-xs text-blue-800 text-center">
             💡 Demo: Use any email and password to login.<br />
@@ -144,5 +134,21 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

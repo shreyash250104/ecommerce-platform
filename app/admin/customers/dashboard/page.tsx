@@ -11,7 +11,8 @@ import {
   ShoppingBag,
   Calendar,
   TrendingUp,
-  Download
+  Download,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/common/Button/Button';
 
@@ -172,7 +173,7 @@ export default function CustomerDashboard() {
                     }`}>
                       {customer.status}
                     </span>
-                   </td>
+                    </td>
                   <td className="px-6 py-4">
                     <Link href={`/admin/customers/${customer.id}`}>
                       <button className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm">
@@ -180,12 +181,18 @@ export default function CustomerDashboard() {
                         View
                       </button>
                     </Link>
-                   </td>
+                    </td>
                  </tr>
               ))}
             </tbody>
            </table>
         </div>
+        
+        {filteredCustomers.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No customers found</p>
+          </div>
+        )}
       </div>
     </div>
   );
